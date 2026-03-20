@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chinese → Quizlet | Flashcard Converter</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1117;--surface:#16192a;--card:#1c2035;
+  --accent:#4f8ef7;--green:#22c55e;--yellow:#f5a623;--red:#ef4444;
+  --text:#f1f5f9;--muted:#64748b;--border:#252d45;
+  --front-color:#ffffff;--back-color:#22c55e;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+
+/* ── HEADER ── */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;height:58px;gap:14px;position:sticky;top:0;z-index:200;}
+.logo{font-family:'Space Mono',monospace;font-size:0.88rem;font-weight:700;color:var(--accent);}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.badge{font-size:0.62rem;font-weight:700;font-family:'Space Mono',monospace;padding:3px 10px;border-radius:20px;background:var(--card);border:1px solid var(--border);color:var(--muted);letter-spacing:.5px;}
+
+/* ── HERO ── */
+main{max-width:800px;margin:0 auto;padding:36px 18px 90px;}
+.hero{margin-bottom:30px;}
+.hero h1{font-size:2rem;font-weight:900;line-height:1.15;letter-spacing:-.5px;margin-bottom:10px;}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--accent),#7eb8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero p{color:var(--muted);font-size:0.87rem;line-height:1.65;max-width:580px;}
+
+/* ── FLASHCARD DIAGRAM ── */
+.diagram{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin-bottom:28px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;}
+.diag-label{font-family:'Space Mono',monospace;font-size:0.58rem;font-weight:700;letter-spacing:1.2px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;}
+.sheets-rows{display:flex;flex-direction:column;gap:5px;}
+.sheet-row{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 10px;}
+.col-tag{font-family:'Space Mono',monospace;font-size:0.55rem;font-weight:700;padding:2px 5px;border-radius:3px;min-width:26px;text-align:center;}
+.col-a{background:#1e3a5f;color:var(--accent);}
+.col-b{background:#3a2a00;color:var(--yellow);}
+.col-c{background:#0d2e1a;color:var(--green);}
+.col-val{font-size:0.78rem;}
+.col-val.chinese{font-size:1.05rem;font-weight:700;}
+.col-val.pinyin{color:var(--yellow);font-style:italic;}
+.col-val.translation{color:var(--green);}
+.diag-arrow{font-size:1.6rem;color:var(--border);text-align:center;}
+.card-diagram{display:flex;flex-direction:column;gap:6px;}
+.card-face{border-radius:8px;padding:12px 14px;}
+.card-face.front-face{background:var(--accent);color:#fff;}
+.card-face.back-face{background:var(--surface);border:1px solid var(--border);}
+.face-label{font-family:'Space Mono',monospace;font-size:0.52rem;font-weight:700;letter-spacing:1px;opacity:.7;margin-bottom:4px;}
+.face-chinese{font-size:1.3rem;font-weight:900;}
+.face-pinyin{font-size:0.65rem;color:var(--yellow);font-style:italic;margin-top:2px;}
+.face-translation{font-size:0.78rem;color:var(--green);}
+
+/* ── PANELS ── */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden;}
+.panel-head{background:var(--surface);padding:12px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.step-badge{background:var(--accent);color:#fff;font-family:'Space Mono',monospace;font-size:0.6rem;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.panel-title{font-family:'Space Mono',monospace;font-size:0.7rem;font-weight:700;letter-spacing:1px;color:var(--accent);}
+.panel-body{padding:18px;}
+
+textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:13px;font-family:'Space Mono',monospace;font-size:0.74rem;line-height:1.9;resize:vertical;min-height:145px;outline:none;transition:border-color .2s;}
+textarea:focus{border-color:var(--accent);}
+textarea::placeholder{color:var(--muted);}
+textarea[readonly]{color:#94a3b8;cursor:text;}
+
+.hint-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:10px;font-size:0.74rem;color:var(--muted);line-height:1.8;}
+.hint-box strong{color:var(--text);}
+.hint-box .kb{display:inline-block;background:var(--surface);border:1px solid var(--muted);border-radius:4px;padding:1px 7px;font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--text);margin:0 2px;}
+
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.btn{padding:10px 20px;border-radius:8px;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:0.74rem;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:7px;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:#3a7de8;transform:translateY(-1px);}
+.btn-green{background:var(--green);color:#000;}
+.btn-green:hover{background:#16a34a;transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── OUTPUT ── */
+#outputSection{display:none;}
+#outputSection.show{display:block;}
+.stats{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.stat{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 16px;text-align:center;}
+.stat .v{font-family:'Space Mono',monospace;font-size:1.45rem;font-weight:700;color:var(--accent);}
+.stat .l{font-size:0.58rem;color:var(--muted);margin-top:2px;letter-spacing:.5px;text-transform:uppercase;}
+
+.preview-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;margin-bottom:16px;}
+.preview-row::-webkit-scrollbar{height:3px;}
+.preview-row::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.fc{flex-shrink:0;width:155px;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.fc-front{padding:11px 12px 8px;border-bottom:1px dashed var(--border);background:rgba(79,142,247,.08);}
+.fc-ch{font-size:1.1rem;font-weight:800;color:var(--front-color);}
+.fc-back{padding:8px 12px;}
+.fc-py{font-size:0.63rem;color:var(--yellow);font-style:italic;margin-bottom:3px;}
+.fc-def{font-size:0.66rem;color:var(--green);line-height:1.45;}
+
+/* ── IMPORT GUIDE ── */
+.guide-steps{display:flex;flex-direction:column;gap:10px;}
+.guide-step{display:flex;gap:12px;align-items:flex-start;}
+.gs-num{background:var(--yellow);color:#000;font-family:'Space Mono',monospace;font-weight:700;font-size:0.65rem;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.gs-body{flex:1;}
+.gs-text{font-size:0.8rem;color:var(--text);line-height:1.5;margin-bottom:4px;}
+.gs-text span{color:var(--accent);font-weight:600;}
+.gs-text code{background:var(--surface);color:var(--yellow);padding:1px 6px;border-radius:3px;font-family:'Space Mono',monospace;font-size:0.68rem;border:1px solid var(--border);}
+.gs-sub{font-size:0.72rem;color:var(--muted);line-height:1.5;}
+.mock-ui{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-top:6px;font-size:0.72rem;}
+.mock-bar{display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:6px;padding:5px 10px;font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);margin-bottom:6px;}
+.mock-bar .highlight{color:var(--accent);font-weight:700;}
+.mock-row{display:flex;align-items:center;gap:8px;margin-top:4px;}
+.mock-label{font-size:0.62rem;color:var(--muted);min-width:110px;}
+.mock-select{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:3px 8px;font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--green);}
+
+#toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green);color:#000;font-family:'Space Mono',monospace;font-size:0.76rem;font-weight:700;padding:11px 22px;border-radius:30px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;z-index:9999;}
+#toast.show{transform:translateX(-50%) translateY(0);}
+
+@media(max-width:600px){
+  .hero h1{font-size:1.55rem;}
+  .diagram{grid-template-columns:1fr;gap:8px;}
+  .diag-arrow{transform:rotate(90deg);}
+  header{padding:0 14px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <span>🀄</span>
+  <div class="logo">CHINESE → QUIZLET</div>
+  <div class="hdr-right">
+    <div class="badge">FLASHCARD CONVERTER</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1>From Google Sheets<br>to <em>Quizlet</em> in one click</h1>
+    <p>Paste your Chinese vocabulary spreadsheet and this tool automatically generates flashcards ready to import into Quizlet — Chinese characters on the front, pinyin + translation on the back.</p>
+  </div>
+
+  <!-- DIAGRAM -->
+  <div class="diagram">
+    <div>
+      <div class="diag-label">Google Sheets — one row</div>
+      <div class="sheets-rows">
+        <div class="sheet-row">
+          <span class="col-tag col-a">A</span>
+          <span class="col-val chinese">还是</span>
+        </div>
+        <div class="sheet-row">
+          <span class="col-tag col-b">B</span>
+          <span class="col-val pinyin">háishi</span>
+        </div>
+        <div class="sheet-row">
+          <span class="col-tag col-c">C</span>
+          <span class="col-val translation">oppure / ancora</span>
+        </div>
+      </div>
+    </div>
+    <div class="diag-arrow">→</div>
+    <div>
+      <div class="diag-label">Quizlet Flashcard</div>
+      <div class="card-diagram">
+        <div class="card-face front-face">
+          <div class="face-label">FRONT (term)</div>
+          <div class="face-chinese">还是</div>
+        </div>
+        <div class="card-face back-face">
+          <div class="face-label">BACK (definition)</div>
+          <div class="face-pinyin">háishi</div>
+          <div class="face-translation">oppure / ancora</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="step-badge">1</span>
+      <span class="panel-title">PASTE YOUR GOOGLE SHEETS DATA</span>
+    </div>
+    <div class="panel-body">
+      <textarea id="rawInput" placeholder="Paste your copied Google Sheets data here...
+
+Expected format (tab-separated columns, exactly as Sheets copies them):
+还是    háishi      oppure / ancora
+孩子    háizi       bambino, ragazzo
+海风    hǎifēng     brezza di mare"></textarea>
+
+      <div class="hint-box">
+        <strong>📋 How to copy from Google Sheets:</strong><br>
+        1. Open your vocabulary sheet<br>
+        2. Click on the first cell (A1)<br>
+        3. Press <span class="kb">Ctrl</span>+<span class="kb">Shift</span>+<span class="kb">End</span> to select all rows<br>
+        4. Press <span class="kb">Ctrl</span>+<span class="kb">C</span> to copy<br>
+        5. Come back here and paste with <span class="kb">Ctrl</span>+<span class="kb">V</span>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="loadExample()">📋 Load example data</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('rawInput').value=''">🗑 Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="step-badge">2</span>
+      <span class="panel-title">GENERATE FLASHCARDS</span>
+    </div>
+    <div class="panel-body">
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:14px;">
+        Already configured for your sheet layout:<br>
+        <strong style="color:var(--text);">Column A</strong> = Chinese characters (front) &nbsp;·&nbsp;
+        <strong style="color:var(--text);">Column B</strong> = Pinyin (back) &nbsp;·&nbsp;
+        <strong style="color:var(--text);">Column C</strong> = Translation (back)
+      </p>
+      <div class="btn-row" style="margin-top:0;">
+        <button class="btn btn-primary" onclick="convert()">⚡ Generate Quizlet flashcards</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div id="outputSection">
+    <div class="panel">
+      <div class="panel-head">
+        <span class="step-badge">3</span>
+        <span class="panel-title">COPY THE GENERATED TEXT</span>
+      </div>
+      <div class="panel-body">
+        <div class="stats" id="statsRow"></div>
+
+        <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:8px;">CARD PREVIEW (scroll →):</div>
+        <div class="preview-row" id="previewCards"></div>
+
+        <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);margin-bottom:6px;">QUIZLET IMPORT TEXT (click to select all, then copy):</div>
+        <textarea id="quizletOutput" readonly onclick="this.select()" style="min-height:160px;"></textarea>
+
+        <div class="btn-row">
+          <button class="btn btn-green" onclick="copyOutput()">📋 Copy all</button>
+          <button class="btn btn-ghost" onclick="downloadTxt()">💾 Download as .txt</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: IMPORT GUIDE -->
+    <div class="panel">
+      <div class="panel-head">
+        <span class="step-badge">4</span>
+        <span class="panel-title">IMPORT INTO QUIZLET — STEP BY STEP</span>
+      </div>
+      <div class="panel-body">
+        <div class="guide-steps">
+
+          <div class="guide-step">
+            <div class="gs-num">1</div>
+            <div class="gs-body">
+              <div class="gs-text">Click <span>"Copy all"</span> above — the text is copied to your clipboard.</div>
+            </div>
+          </div>
+
+          <div class="guide-step">
+            <div class="gs-num">2</div>
+            <div class="gs-body">
+              <div class="gs-text">Open <span>quizlet.com</span> in a new tab and sign in to your account.</div>
+            </div>
+          </div>
+
+          <div class="guide-step">
+            <div class="gs-num">3</div>
+            <div class="gs-body">
+              <div class="gs-text">Click <span>"+"</span> in the top right corner and select <span>"Create a study set"</span>.</div>
+            </div>
+          </div>
+
+          <div class="guide-step">
+            <div class="gs-num">4</div>
+            <div class="gs-body">
+              <div class="gs-text">On the creation page, click the <span>"Import"</span> link.</div>
+              <div class="mock-ui">
+                <div class="mock-bar">
+                  <span>Create a new study set</span>
+                  <span class="highlight" style="margin-left:auto;">+ Import →</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="guide-step">
+            <div class="gs-num">5</div>
+            <div class="gs-body">
+              <div class="gs-text">In the popup, <span>paste the text</span> with <code>Ctrl+V</code>.</div>
+              <div class="gs-sub">Your vocabulary will appear in the text box.</div>
+            </div>
+          </div>
+
+          <div class="guide-step">
+            <div class="gs-num">6</div>
+            <div class="gs-body">
+              <div class="gs-text">Set the <span>separators</span> exactly like this:</div>
+              <div class="mock-ui">
+                <div class="mock-row">
+                  <span class="mock-label">Between term and def.</span>
+                  <span class="mock-select">✔ Tab</span>
+                </div>
+                <div class="mock-row" style="margin-top:5px;">
+                  <span class="mock-label">Between cards</span>
+                  <span class="mock-select">✔ New line</span>
+                </div>
+              </div>
+              <div class="gs-sub" style="margin-top:6px;">⚠️ Wrong separators will break the import — make sure both are set correctly.</div>
+            </div>
+          </div>
+
+          <div class="guide-step">
+            <div class="gs-num">7</div>
+            <div class="gs-body">
+              <div class="gs-text">Click <span>"Import"</span> → Quizlet creates all your flashcards automatically. 🎉</div>
+              <div class="gs-sub">You can then add a title to your set and save.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div id="toast">✅ Copied!</div>
+
+<script>
+const EXAMPLE = `国内\tguónèi\tinterno (del paese)
+过\tguò\tpassare da, passare per, passare
+过\tguo\tparticella dell'aspetto compiuto
+过路人\tguòlùrén\tpassante
+过去\tguòqù\tpassato
+还\thái\tancora, e anche, in più
+还\thuán\trendere, restituire
+还好\thái hǎo\tfortunatamente
+还价\thuánjià\tcontrattare, mercanteggiare
+还是\tháishi\toppure
+还是\tháishi\tancora
+还是\tháishi\tmeglio sarebbe se... / fare meglio a
+孩子\tháizi\tbambino, ragazzo
+海\thái\tmare
+海淀区\tHǎidiànqū\tDistretto Haidian
+海风\thǎifēng\tbrezza di mare
+海上\thǎishàng\tmarino, marittimo, di mare
+韩国\tHánguó\tCorea (del Sud)
+汗\thàn\tsudore
+汉语\tHànyǔ\tlingua cinese`;
+
+function loadExample(){
+  document.getElementById('rawInput').value = EXAMPLE;
+  showToast('Example data loaded!');
+}
+
+function convert(){
+  const raw = document.getElementById('rawInput').value.trim();
+  if(!raw){ alert('Please paste your Google Sheets data first!'); return; }
+
+  const rows = raw.split('\n').map(l => l.split('\t'));
+  const cards = [];
+
+  rows.forEach(cols => {
+    const ch  = (cols[0] || '').trim(); // Column A → front
+    const py  = (cols[1] || '').trim(); // Column B → back line 1
+    const def = (cols[2] || '').trim(); // Column C → back line 2
+    if(!ch && !def) return;
+
+    const front = ch;
+    let back = '';
+    if(py && def) back = py + ' — ' + def;
+    else if(py)   back = py;
+    else          back = def;
+
+    cards.push({ ch, py, def, front, back });
+  });
+
+  if(!cards.length){
+    alert('No valid data found. Make sure you copied the data correctly from Google Sheets.');
+    return;
+  }
+
+  const quizletText = cards.map(c => c.front + '\t' + c.back).join('\n');
+  document.getElementById('quizletOutput').value = quizletText;
+
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat"><div class="v">${cards.length}</div><div class="l">Flashcards</div></div>
+    <div class="stat"><div class="v">${cards.filter(c=>c.py).length}</div><div class="l">With Pinyin</div></div>
+    <div class="stat"><div class="v">${new Set(cards.map(c=>c.ch)).size}</div><div class="l">Unique</div></div>
+  `;
+
+  const pc = document.getElementById('previewCards');
+  pc.innerHTML = '';
+  cards.slice(0,9).forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'fc';
+    d.innerHTML = `
+      <div class="fc-front"><div class="fc-ch">${c.ch}</div></div>
+      <div class="fc-back">${c.py ? `<div class="fc-py">${c.py}</div>` : ''}<div class="fc-def">${c.def}</div></div>
+    `;
+    pc.appendChild(d);
+  });
+
+  const os = document.getElementById('outputSection');
+  os.classList.add('show');
+  setTimeout(() => os.scrollIntoView({ behavior:'smooth', block:'start' }), 100);
+}
+
+function copyOutput(){
+  const txt = document.getElementById('quizletOutput').value;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(() => showToast('✅ Copied! Now go to Quizlet and follow Step 4'));
+  } else {
+    document.getElementById('quizletOutput').select();
+    document.execCommand('copy');
+    showToast('✅ Copied!');
+  }
+}
+
+function downloadTxt(){
+  const txt = document.getElementById('quizletOutput').value;
+  const a = document.createElement('a');
+  a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(txt);
+  a.download = 'chinese-flashcards-quizlet.txt';
+  a.click();
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
