@@ -1,8 +1,8 @@
-# ðŸ€„ Chinese Vocabulary â†’ Quizlet Converter
+# ðŸ€?Chinese Vocabulary â†?Quizlet Converter
 
 A free, no-login, no-install web app that converts a Chinese vocabulary Google Sheet into a Quizlet-ready import file in under a minute.
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-GitHub_Pages-4f8ef7?style=flat-square)](https://YOUR-USERNAME.github.io/sheets-to-quizlet/)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-GitHub_Pages-4f8ef7?style=flat-square)](https://zilongcheng582-cyber.github.io/sheets-to-quizlet/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
 ---
@@ -13,9 +13,9 @@ Each row in your Google Sheet becomes one Quizlet flashcard:
 
 | Google Sheets | | Quizlet Flashcard |
 |---|---|---|
-| Column A â€” `è¿˜æ˜¯` | â†’ | **Front:** `è¿˜æ˜¯` |
-| Column B â€” `hÃ¡ishi` | â†’ | **Back:** `hÃ¡ishi â€” oppure / ancora` |
-| Column C â€” `oppure / ancora` | â†’ | *(combined into back)* |
+| Column A â€?`è¿˜æ˜¯` | â†?| **Front:** `è¿˜æ˜¯` |
+| Column B â€?`hÃ¡ishi` | â†?| **Back:** `hÃ¡ishi â€?oppure / ancora` |
+| Column C â€?`oppure / ancora` | â†?| *(combined into back)* |
 
 The front shows only the Chinese characters. The back shows pinyin + Italian translation together.
 
@@ -23,16 +23,16 @@ The front shows only the Chinese characters. The back shows pinyin + Italian tra
 
 ## How to use
 
-### Option 1 â€” Online (recommended)
+### Option 1 â€?Online (recommended)
 
-Open the live site: **[https://YOUR-USERNAME.github.io/sheets-to-quizlet/](https://YOUR-USERNAME.github.io/sheets-to-quizlet/)**
+Open the live site: **[https://zilongcheng582-cyber.github.io/sheets-to-quizlet/](https://zilongcheng582-cyber.github.io/sheets-to-quizlet/)**
 
 No installation needed. Works on any browser, desktop or mobile.
 
-### Option 2 â€” Run locally
+### Option 2 â€?Run locally
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/sheets-to-quizlet.git
+git clone https://github.com/zilongcheng582-cyber/sheets-to-quizlet.git
 cd sheets-to-quizlet
 open index.html        # macOS
 start index.html       # Windows
@@ -43,27 +43,27 @@ xdg-open index.html    # Linux
 
 ## Step-by-step guide
 
-**Step 1 â€” Copy from Google Sheets**
+**Step 1 â€?Copy from Google Sheets**
 1. Open your vocabulary sheet
 2. Click the first cell (A1)
 3. Press `Ctrl+Shift+End` to select all rows
 4. Press `Ctrl+C` to copy
 
-**Step 2 â€” Paste into the app**
+**Step 2 â€?Paste into the app**
 1. Open the app
 2. Paste with `Ctrl+V` into the text box
 
-**Step 3 â€” Generate**
+**Step 3 â€?Generate**
 1. Click **"Genera flashcard Quizlet"**
 2. Check the card preview to make sure everything looks right
 
-**Step 4 â€” Import into Quizlet**
+**Step 4 â€?Import into Quizlet**
 1. Click **"Copia tutto"** (Copy all)
-2. Go to [quizlet.com](https://quizlet.com) â†’ click **"+"** â†’ **"Create a study set"**
+2. Go to [quizlet.com](https://quizlet.com) â†?click **"+"** â†?**"Create a study set"**
 3. Click **"Import"** (Import from Word, Excel, Google Docs...)
 4. Paste with `Ctrl+V`
 5. Set separators: **Between term and definition = Tab** Â· **Between cards = New line**
-6. Click **"Import"** â€” done! ðŸŽ‰
+6. Click **"Import"** â€?done! ðŸŽ‰
 
 ---
 
@@ -78,9 +78,9 @@ The app expects tab-separated columns, exactly as Google Sheets copies them:
 éŸ©å›½    HÃ¡nguÃ³      Corea (del Sud)
 ```
 
-- **Column A** â€” Chinese characters
-- **Column B** â€” Pinyin
-- **Column C** â€” Italian translation
+- **Column A** â€?Chinese characters
+- **Column B** â€?Pinyin
+- **Column C** â€?Italian translation
 
 Rows with missing data are skipped automatically.
 
@@ -96,16 +96,16 @@ sheets-to-quizlet/
 â””â”€â”€ .gitignore       # Standard gitignore
 ```
 
-The whole app lives in a single `index.html` file â€” no dependencies, no build step, no frameworks.
+The whole app lives in a single `index.html` file â€?no dependencies, no build step, no frameworks.
 
 ---
 
 ## Deploy to GitHub Pages
 
 1. Push this repo to GitHub
-2. Go to **Settings â†’ Pages**
-3. Set Source to **Deploy from a branch â†’ main â†’ / (root)**
-4. Save â€” your site will be live at `https://YOUR-USERNAME.github.io/sheets-to-quizlet/` within a minute
+2. Go to **Settings â†?Pages**
+3. Set Source to **Deploy from a branch â†?main â†?/ (root)**
+4. Save â€?your site will be live at `https://zilongcheng582-cyber.github.io/sheets-to-quizlet/` within a minute
 
 ---
 
@@ -114,9 +114,9 @@ The whole app lives in a single `index.html` file â€” no dependencies, no build 
 Want to adapt this for a different language pair or column order? Open `index.html` and edit the `convert()` function:
 
 ```js
-const ch  = (cols[0] || '').trim();  // Column A â†’ front of card
-const py  = (cols[1] || '').trim();  // Column B â†’ back line 1
-const def = (cols[2] || '').trim();  // Column C â†’ back line 2
+const ch  = (cols[0] || '').trim();  // Column A â†?front of card
+const py  = (cols[1] || '').trim();  // Column B â†?back line 1
+const def = (cols[2] || '').trim();  // Column C â†?back line 2
 ```
 
 Change the column indices (`cols[0]`, `cols[1]`, `cols[2]`) to match your sheet layout.
@@ -125,4 +125,4 @@ Change the column indices (`cols[0]`, `cols[1]`, `cols[2]`) to match your sheet 
 
 ## License
 
-[MIT](LICENSE) â€” free to use, modify, and share.
+[MIT](LICENSE) â€?free to use, modify, and share.
